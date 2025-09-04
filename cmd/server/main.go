@@ -6,6 +6,8 @@ import (
 	"log/slog"
 	"net"
 	"os"
+	"github.com/KitiHey/tcp-chat-go/internal/connection"
+	"github.com/KitiHey/tcp-chat-go/internal/db"
 )
 
 func main() {
@@ -26,6 +28,8 @@ func main() {
 		slog.Error("Error listening!: %e", err)
 		return
 	}
+
+	database := db.NewDatabase();
 	for {
 		conn, err := ln.Accept()
 		if err != nil {
@@ -33,15 +37,6 @@ func main() {
 			continue
 		}
 		conn.Write([]byte("Welcome to TCP Chat!"))
-		go func() {
-			for {
-				var buffer = make([]byte, 1024)
-				_, err := conn.Read(buffer)
-				if err != nil {
-					break;
-				}
-				fmt.Println(string(buffer))
-			}
-		}()
+		go connection.HandleCon(conn, database)
 	}
 }

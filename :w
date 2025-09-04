@@ -1,0 +1,44 @@
+package db
+
+import (
+	"math/rand"
+)
+
+type UUID [16]byte
+type Channel []*User
+
+type User struct {
+	nick string
+}
+
+type Database struct {
+	users map[ UUID ]*User
+	channels map[string]Channel
+}
+
+func NewDatabase() *Database {
+	return &Database{channels: []string{"general"}}
+}
+
+// Channels
+func (db *Database) NewChannel(newchannel string) {
+	db.channels = append(db.channels, newchannel)
+}
+
+// Users
+func (db *Database) NewUser() (uuid UUID) {
+	for i := range uuid {
+		uuid[i] = byte(rand.Intn(256))
+	}
+	db.users[uuid] = &User{channel: "general", nick: "unknown"}
+	return uuid
+}
+
+func (db Database) GetUser(uuid UUID) (*User, bool) {
+	usr, ok := db.users[uuid]
+	return usr, ok
+}
+
+func (usr User) GetChannel() string {
+	return usr.channel
+}

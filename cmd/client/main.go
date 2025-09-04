@@ -39,14 +39,12 @@ func main() {
 	}()
 
 	for {
-		fmt.Printf("> ")
 		reader := bufio.NewReader(os.Stdin)
 		text, _ := reader.ReadString('\n')
-		_, err := conn.Write([]byte(text))
+		_, err := conn.Write([]byte(text[:len(text)-1]))
 		if err != nil {
 			slog.Error("Couldn't send message!: %e", err)
 			continue
 		}
-		slog.Info("Message Sent!")
 	}
 }
