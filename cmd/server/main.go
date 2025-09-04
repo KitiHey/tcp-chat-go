@@ -24,15 +24,24 @@ func main() {
 	ln, err := net.Listen("tcp", port)
 	if err != nil {
 		slog.Error("Error listening!: %e", err)
+		return
 	}
 	for {
 		conn, err := ln.Accept()
 		if err != nil {
 			slog.Error("Connection failed!: %e", err)
+			continue
 		}
 		conn.Write([]byte("Welcome to TCP Chat!"))
-		var buffer = make([]byte, 1024)
-		conn.Read(buffer)
-		fmt.Println(string(buffer))
+		go func() {
+			for {
+				var buffer = make([]byte, 1024)
+				_, err := conn.Read(buffer)
+				if err != nil {
+					break;
+				}
+				fmt.Println(string(buffer))
+			}
+		}()
 	}
 }

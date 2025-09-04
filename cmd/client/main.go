@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net"
 	"os"
+	"bufio"
 )
 
 func main() {
@@ -24,8 +25,28 @@ func main() {
 		slog.Error("Error connecting!: %e", err)
 		return
 	}
-	conn.Write([]byte("Hello from Client!"))
+
 	var buffer = make([]byte, 1024)
 	conn.Read(buffer)
 	fmt.Println(string(buffer))
+
+	go func() {
+		for {
+			var buffer = make([]byte, 1024)
+			conn.Read(buffer)
+			fmt.Println(string(buffer))
+		}
+	}()
+
+	for {
+		fmt.Printf("> ")
+		reader := bufio.NewReader(os.Stdin)
+		text, _ := reader.ReadString('\n')
+		_, err := conn.Write([]byte(text))
+		if err != nil {
+			slog.Error("Couldn't send message!: %e", err)
+			continue
+		}
+		slog.Info("Message Sent!")
+	}
 }
